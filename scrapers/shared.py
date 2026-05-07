@@ -14,7 +14,7 @@ import time
 import psutil
 
 # ── Logging ──────────────────────────────────────────────────────────
-log = logging.getLogger("amazon-crawler")
+log = logging.getLogger("applesauce-crawlers")
 
 
 # ── Exceptions ───────────────────────────────────────────────────────
@@ -42,6 +42,14 @@ _API_STATS: dict = {
     "camel_cache_hits": 0,
     "camel_products_scraped": 0,
 
+    # eBay
+    "ebay_scrape_requests": 0,
+    "ebay_scrape_success": 0,
+    "ebay_scrape_errors": 0,
+    "ebay_cache_hits": 0,
+    "playwright_calls": 0,
+    "playwright_fallbacks": 0,
+
     # Direct Amazon (planned)
     "amazon_scrape_requests": 0,
     "amazon_scrape_success": 0,
@@ -50,10 +58,16 @@ _API_STATS: dict = {
     # Aggregate
     "total_scrape_requests": 0,
     "bandwidth_camel": 0,
+    "bandwidth_ebay": 0,
     "bandwidth_amazon": 0,
     "bandwidth_total": 0,
     "bandwidth_queries": 0,
 }
+
+
+# ── In-flight request dedup (thundering-herd guard) ──────────────────
+_INFLIGHT: dict[str, threading.Event] = {}
+_INFLIGHT_LOCK = threading.Lock()
 
 
 def _snapshot_resources():
@@ -365,3 +379,22 @@ _BROWSER_REQUEST_COUNT = 0
 def _increment_browser_requests():
     global _BROWSER_REQUEST_COUNT
     _BROWSER_REQUEST_COUNT += 1
+
+
+# ── Generic API circuit breaker (used by eBay Finding API) ───────────
+_API_CIRCUIT_OPEN_UNTIL = 0.0
+_API_CIRCUIT_COOLDOWN = 1800  # 30 min — match the CCC value
+
+
+def _set_api_circuit_open():
+    global _API_CIRCUIT_OPEN_UNTIL
+    _API_CIRCUIT_OPEN_UNTIL = time.time() + _API_CIRCUIT_COOLDOWN
+    log.warning("API circuit breaker OPEN — backing off API calls for %ds", _API_CIRCUIT_COOLDOWN)
+
+
+def _is_api_circuit_open() -> bool:
+    return time.time() < _API_CIRCUIT_OPEN_UNTIL
+
+
+def _get_api_circuit_open_until() -> float:
+    return _API_CIRCUIT_OPEN_UNTIL

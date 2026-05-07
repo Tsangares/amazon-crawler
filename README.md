@@ -1,12 +1,14 @@
-# amazon-crawler
+# applesauce-crawlers
 
-Containerized HTTP service that aggregates Amazon product data — current
-prices, price history, eventually reviews and ratings — for downstream
-research tools and LLM-grounded product comparisons.
+HTTP service that aggregates product data from multiple sources —
+CamelCamelCamel (Amazon price history), eBay sold/active listings, and
+direct Amazon scraping (planned) — for downstream research tools, the
+sell.applesauce.chat reseller flow, and LLM-grounded product comparisons.
 
-Forked from the CamelCamelCamel scraper that powers
-[sell.applesauce.chat](https://sell.applesauce.chat). Designed to be deployed
-independently of sell so other apps can talk to it.
+Extracted from sell.applesauce.chat so multiple apps (sell, pickl, hub,
+future research tools) can share one set of crawlers instead of each
+forking their own. See [`docs/extraction.md`](docs/extraction.md) for the
+phased migration plan.
 
 ![Swagger UI showing all endpoints](docs/img/swagger.png)
 
@@ -31,7 +33,7 @@ You'll need system Chromium and Xvfb installed:
 
 ```bash
 sudo apt-get install chromium xvfb
-git clone https://github.com/Tsangares/amazon-crawler && cd amazon-crawler
+git clone https://github.com/Tsangares/applesauce-crawlers && cd applesauce-crawlers
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/uvicorn main:app --port 8011
 ```
@@ -47,14 +49,14 @@ git-pull-and-restart workflow used across the Applesauce stack.
 
 ```bash
 # First-time setup on the target host:
-git clone https://github.com/Tsangares/amazon-crawler /opt/amazon-crawler
-cd /opt/amazon-crawler
+git clone https://github.com/Tsangares/applesauce-crawlers /opt/applesauce-crawlers
+cd /opt/applesauce-crawlers
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-cp amazon-crawler.service /etc/systemd/system/
-systemctl daemon-reload && systemctl enable --now amazon-crawler
+cp applesauce-crawlers.service /etc/systemd/system/
+systemctl daemon-reload && systemctl enable --now applesauce-crawlers
 
 # Subsequent deploys:
-ssh root@host /opt/amazon-crawler/deploy.sh
+ssh root@host /opt/applesauce-crawlers/deploy.sh
 ```
 
 The unit listens on port `8011` by default. CDP debug port and Xvfb display
@@ -65,7 +67,7 @@ are set to `:9260` / `:99` to avoid clashing with the existing
 
 ```bash
 pip install pytest
-AMAZON_CRAWLER_URL=http://localhost:8011 pytest tests/test_smoke.py -v
+APPLESAUCE_CRAWLERS_URL=http://localhost:8011 pytest tests/test_smoke.py -v
 ```
 
 ## API
@@ -175,8 +177,8 @@ Xvfb dies, so the next request relaunches cleanly.
 | `CAMEL_XVFB_DISPLAY` | `:98` | Virtual display |
 | `CHROMIUM_BIN` | `/usr/bin/chromium` | System Chromium path |
 
-The shipped `amazon-crawler.service` overrides `CAMEL_CDP_PORT=9260`,
-`CAMEL_XVFB_DISPLAY=:99`, and `CAMEL_PROFILE_DIR=/tmp/amazon-crawler-profile`
+The shipped `applesauce-crawlers.service` overrides `CAMEL_CDP_PORT=9260`,
+`CAMEL_XVFB_DISPLAY=:99`, and `CAMEL_PROFILE_DIR=/tmp/applesauce-crawlers-profile`
 so it can coexist with sell's `ebay-scraper.service` (which uses `:98`/`9250`).
 
 ## Lineage

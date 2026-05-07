@@ -1,18 +1,18 @@
-"""Smoke tests against a running amazon-crawler instance.
+"""Smoke tests against a running applesauce-crawlers instance.
 
 Default target is http://localhost:8011 (the systemd unit's port). Override
-with AMAZON_CRAWLER_URL.
+with APPLESAUCE_CRAWLERS_URL.
 
 Run:
     pytest tests/test_smoke.py -v
 or:
-    AMAZON_CRAWLER_URL=http://crawler.example.com:8011 pytest tests/test_smoke.py -v
+    APPLESAUCE_CRAWLERS_URL=http://crawler.example.com:8011 pytest tests/test_smoke.py -v
 """
 import os
 import urllib.request
 import json
 
-BASE = os.environ.get("AMAZON_CRAWLER_URL", "http://localhost:8011").rstrip("/")
+BASE = os.environ.get("APPLESAUCE_CRAWLERS_URL", "http://localhost:8011").rstrip("/")
 
 
 def _get(path: str, timeout: int = 10) -> dict:
@@ -27,20 +27,34 @@ def test_health():
 
 def test_index():
     body = _get("/")
-    assert body["service"] == "amazon-crawler"
+    assert body["service"] == "applesauce-crawlers"
     assert "/scrape-camel" in body["endpoints"]
+    assert "/scrape" in body["endpoints"]
 
 
 def test_stats():
     body = _get("/stats")
     assert "api_stats" in body
     assert "camel" in body
+    assert "ebay" in body
     assert "uptime_s" in body
+    assert "ebay_scrape_requests" in body["api_stats"]
 
 
 def test_crawler_health_shape():
     body = _get("/crawler-health")
     assert isinstance(body, dict)
+
+
+def test_scrape_endpoint_registered():
+    """/scrape (eBay) must require ?q= — confirms the route is wired up
+    without actually hitting live eBay."""
+    import urllib.error
+    try:
+        _get("/scrape")
+        assert False, "expected 422 when ?q is missing"
+    except urllib.error.HTTPError as e:
+        assert e.code == 422, f"/scrape (no q) returned {e.code}, expected 422"
 
 
 def test_amazon_endpoints_return_501():

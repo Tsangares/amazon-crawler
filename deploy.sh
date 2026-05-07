@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# Deploy script for amazon-crawler.
+# Deploy script for applesauce-crawlers.
 #
-# Run on the target host, in the deploy dir (/opt/amazon-crawler/).
+# Run on the target host, in the deploy dir (/opt/applesauce-crawlers/).
 # Pulls latest from git, refreshes the venv if requirements changed,
 # and bounces the systemd unit.
 #
 # First-time setup (run by hand):
-#     git clone https://github.com/Tsangares/amazon-crawler /opt/amazon-crawler
-#     cd /opt/amazon-crawler
+#     git clone https://github.com/Tsangares/applesauce-crawlers /opt/applesauce-crawlers
+#     cd /opt/applesauce-crawlers
 #     python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-#     cp amazon-crawler.service /etc/systemd/system/
-#     systemctl daemon-reload && systemctl enable --now amazon-crawler
+#     cp applesauce-crawlers.service /etc/systemd/system/
+#     systemctl daemon-reload && systemctl enable --now applesauce-crawlers
 #
-# After that, ship updates with `./deploy.sh` (or `ssh root@host /opt/amazon-crawler/deploy.sh`).
+# After that, ship updates with `./deploy.sh` (or `ssh root@host /opt/applesauce-crawlers/deploy.sh`).
 
 set -euo pipefail
 
-DEPLOY_DIR="${DEPLOY_DIR:-/opt/amazon-crawler}"
-SERVICE="${SERVICE:-amazon-crawler}"
+DEPLOY_DIR="${DEPLOY_DIR:-/opt/applesauce-crawlers}"
+SERVICE="${SERVICE:-applesauce-crawlers}"
 
 cd "$DEPLOY_DIR"
 
