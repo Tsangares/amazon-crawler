@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+CLAUDE.md
+.claude/
+.env
+data/
+*.db
+*.db-journal
+/tmp-chrome-profile/

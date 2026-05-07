@@ -1,0 +1,14 @@
+services:
+  amazon-crawler:
+    build: .
+    image: amazon-crawler:dev
+    container_name: amazon-crawler
+    ports:
+      - "8010:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DATA_DIR=/app/data
+    restart: unless-stopped
+    # Chromium needs a fair amount of /dev/shm to render pages.
+    shm_size: 1gb
