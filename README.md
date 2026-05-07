@@ -35,11 +35,11 @@ You'll need system Chromium and Xvfb installed:
 sudo apt-get install chromium xvfb
 git clone https://github.com/Tsangares/applesauce-crawlers && cd applesauce-crawlers
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/uvicorn main:app --port 8011
+.venv/bin/uvicorn main:app --port 8014
 ```
 
 ```bash
-curl 'http://localhost:8011/scrape-camel?q=AeroPress&max_results=5'
+curl 'http://localhost:8014/scrape-camel?q=AeroPress&max_results=5'
 ```
 
 ## Production deploy (systemd)
@@ -59,15 +59,16 @@ systemctl daemon-reload && systemctl enable --now applesauce-crawlers
 ssh root@host /opt/applesauce-crawlers/deploy.sh
 ```
 
-The unit listens on port `8011` by default. CDP debug port and Xvfb display
-are set to `:9260` / `:99` to avoid clashing with the existing
-`ebay-scraper.service` (CCC scraper at `:9250` / `:98`) on the same host.
+The unit listens on port `8014` by default. CDP debug port and Xvfb display
+are set to `9260` / `:96` so they don't clash with the other Chromium
+users on the same host (`ebay-scraper.service` uses `9250` / `:98`,
+`tiktok-scraper.service` uses `:99`).
 
 ## Smoke test
 
 ```bash
 pip install pytest
-APPLESAUCE_CRAWLERS_URL=http://localhost:8011 pytest tests/test_smoke.py -v
+APPLESAUCE_CRAWLERS_URL=http://localhost:8014 pytest tests/test_smoke.py -v
 ```
 
 ## API

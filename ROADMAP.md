@@ -50,10 +50,11 @@ itself has the social proof. Build in this order:
 
 ## Operational
 
-- **Deploy target**: leaning toward mat (port 8011) since chromium + xvfb are
-  already installed for the existing `ebay-scraper.service`. The systemd unit
-  uses different CDP/Xvfb numbers so the two don't collide. Could split off
-  to its own VPS later if it grows or starts competing for bandwidth with sell.
+- **Deploy target**: mat (port 8014) since chromium + xvfb are already
+  installed for the existing `ebay-scraper.service`. The systemd unit uses
+  different CDP/Xvfb numbers (9260 / :96) so the two don't collide. Could
+  split off to its own VPS later if it grows or starts competing for
+  bandwidth with sell.
 - **Monitoring**: `/stats` and `/crawler-health` are already there; wire
   into the Hub status grid (`hub.applesauce.chat`).
 - **Caching strategy**: SQLite TTL is currently 12h. Consider shorter for

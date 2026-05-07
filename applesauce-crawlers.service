@@ -9,15 +9,14 @@ WorkingDirectory=/opt/applesauce-crawlers
 Environment=HOME=/root
 Environment=DATA_DIR=/opt/applesauce-crawlers/data
 Environment=CAMEL_PROFILE_DIR=/tmp/applesauce-crawlers-camel-profile
-Environment=EBAY_PROFILE_DIR=/tmp/applesauce-crawlers-ebay-profile
-# Different CDP port from sell's ebay-scraper (which uses 9250) so the two
-# services' Chromium subprocesses don't collide on the same host.
+# CDP port + Xvfb display picked to NOT collide with the other Chromium
+# users on this host:
+#   ebay-scraper.service  (sell's CCC scraper) — CDP 9250 / display :98
+#   tiktok-scraper.service                     — display :99
 Environment=CAMEL_CDP_PORT=9260
-Environment=CAMEL_XVFB_DISPLAY=:99
-Environment=EBAY_CDP_PORT=9261
-Environment=EBAY_XVFB_DISPLAY=:97
-ExecStartPre=/bin/sh -c 'rm -f /tmp/applesauce-crawlers-*-profile/Singleton* 2>/dev/null || true'
-ExecStart=/opt/applesauce-crawlers/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8011
+Environment=CAMEL_XVFB_DISPLAY=:96
+ExecStartPre=/bin/sh -c 'rm -f /tmp/applesauce-crawlers-camel-profile/Singleton* 2>/dev/null || true'
+ExecStart=/opt/applesauce-crawlers/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8014
 Restart=always
 RestartSec=10
 

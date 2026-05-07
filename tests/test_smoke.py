@@ -1,18 +1,18 @@
 """Smoke tests against a running applesauce-crawlers instance.
 
-Default target is http://localhost:8011 (the systemd unit's port). Override
+Default target is http://localhost:8014 (the systemd unit's port). Override
 with APPLESAUCE_CRAWLERS_URL.
 
 Run:
     pytest tests/test_smoke.py -v
 or:
-    APPLESAUCE_CRAWLERS_URL=http://crawler.example.com:8011 pytest tests/test_smoke.py -v
+    APPLESAUCE_CRAWLERS_URL=http://crawler.example.com:8014 pytest tests/test_smoke.py -v
 """
 import os
 import urllib.request
 import json
 
-BASE = os.environ.get("APPLESAUCE_CRAWLERS_URL", "http://localhost:8011").rstrip("/")
+BASE = os.environ.get("APPLESAUCE_CRAWLERS_URL", "http://localhost:8014").rstrip("/")
 
 
 def _get(path: str, timeout: int = 10) -> dict:
