@@ -3,7 +3,7 @@
 ## Done
 
 - ✅ Forked CCC scraper from sell.applesauce.chat into a standalone repo
-- ✅ Containerized (Dockerfile + docker-compose) with Chromium + Xvfb
+- ✅ Systemd unit + `deploy.sh` (matches the Applesauce `git pull` + `systemctl restart` pattern)
 - ✅ Added `force_product_page` flag so callers can get real price history
 - ✅ Slimmed shared.py to CCC-only primitives
 - ✅ Smoke tests + stats/health endpoints
@@ -50,10 +50,10 @@ itself has the social proof. Build in this order:
 
 ## Operational
 
-- **Deploy target**: TBD. Options:
-  - Mat (already runs the upstream CCC scraper at port 8002).
-  - A separate VPS so it doesn't share fate with sell.applesauce.chat.
-  - The home Pi if traffic is low.
+- **Deploy target**: leaning toward mat (port 8011) since chromium + xvfb are
+  already installed for the existing `ebay-scraper.service`. The systemd unit
+  uses different CDP/Xvfb numbers so the two don't collide. Could split off
+  to its own VPS later if it grows or starts competing for bandwidth with sell.
 - **Monitoring**: `/stats` and `/crawler-health` are already there; wire
   into the Hub status grid (`hub.applesauce.chat`).
 - **Caching strategy**: SQLite TTL is currently 12h. Consider shorter for

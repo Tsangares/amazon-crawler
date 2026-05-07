@@ -25,35 +25,47 @@ independently of sell so other apps can talk to it.
 
 See [`ROADMAP.md`](ROADMAP.md) for what's next.
 
-## Quick start
-
-### Local (Docker)
-
-```bash
-docker compose up --build
-# wait ~20s for chromium + xvfb to warm up
-curl 'http://localhost:8010/scrape-camel?q=AeroPress&max_results=5'
-```
-
-The compose service maps host port `8010` → container port `8000` and mounts
-`./data/` for the SQLite cache.
-
-### Local (no Docker)
+## Quick start (local)
 
 You'll need system Chromium and Xvfb installed:
 
 ```bash
 sudo apt-get install chromium xvfb
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --port 8000
+git clone https://github.com/Tsangares/amazon-crawler && cd amazon-crawler
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/uvicorn main:app --port 8011
 ```
 
-### Smoke test
+```bash
+curl 'http://localhost:8011/scrape-camel?q=AeroPress&max_results=5'
+```
+
+## Production deploy (systemd)
+
+The service ships with a systemd unit and a `deploy.sh` for the
+git-pull-and-restart workflow used across the Applesauce stack.
+
+```bash
+# First-time setup on the target host:
+git clone https://github.com/Tsangares/amazon-crawler /opt/amazon-crawler
+cd /opt/amazon-crawler
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+cp amazon-crawler.service /etc/systemd/system/
+systemctl daemon-reload && systemctl enable --now amazon-crawler
+
+# Subsequent deploys:
+ssh root@host /opt/amazon-crawler/deploy.sh
+```
+
+The unit listens on port `8011` by default. CDP debug port and Xvfb display
+are set to `:9260` / `:99` to avoid clashing with the existing
+`ebay-scraper.service` (CCC scraper at `:9250` / `:98`) on the same host.
+
+## Smoke test
 
 ```bash
 pip install pytest
-AMAZON_CRAWLER_URL=http://localhost:8010 pytest tests/test_smoke.py -v
+AMAZON_CRAWLER_URL=http://localhost:8011 pytest tests/test_smoke.py -v
 ```
 
 ## API
@@ -162,6 +174,10 @@ Xvfb dies, so the next request relaunches cleanly.
 | `CAMEL_CDP_PORT` | `9250` | CDP debugging port |
 | `CAMEL_XVFB_DISPLAY` | `:98` | Virtual display |
 | `CHROMIUM_BIN` | `/usr/bin/chromium` | System Chromium path |
+
+The shipped `amazon-crawler.service` overrides `CAMEL_CDP_PORT=9260`,
+`CAMEL_XVFB_DISPLAY=:99`, and `CAMEL_PROFILE_DIR=/tmp/amazon-crawler-profile`
+so it can coexist with sell's `ebay-scraper.service` (which uses `:98`/`9250`).
 
 ## Lineage
 

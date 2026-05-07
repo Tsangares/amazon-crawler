@@ -1,18 +1,18 @@
 """Smoke tests against a running amazon-crawler instance.
 
-Default target is http://localhost:8010 (the docker-compose port). Override
+Default target is http://localhost:8011 (the systemd unit's port). Override
 with AMAZON_CRAWLER_URL.
 
 Run:
     pytest tests/test_smoke.py -v
 or:
-    AMAZON_CRAWLER_URL=http://crawler.example.com:8010 pytest tests/test_smoke.py -v
+    AMAZON_CRAWLER_URL=http://crawler.example.com:8011 pytest tests/test_smoke.py -v
 """
 import os
 import urllib.request
 import json
 
-BASE = os.environ.get("AMAZON_CRAWLER_URL", "http://localhost:8010").rstrip("/")
+BASE = os.environ.get("AMAZON_CRAWLER_URL", "http://localhost:8011").rstrip("/")
 
 
 def _get(path: str, timeout: int = 10) -> dict:
