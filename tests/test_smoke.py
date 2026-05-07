@@ -6,7 +6,7 @@ with AMAZON_CRAWLER_URL.
 Run:
     pytest tests/test_smoke.py -v
 or:
-    AMAZON_CRAWLER_URL=http://100.123.10.30:8010 pytest tests/test_smoke.py -v
+    AMAZON_CRAWLER_URL=http://crawler.example.com:8010 pytest tests/test_smoke.py -v
 """
 import os
 import urllib.request

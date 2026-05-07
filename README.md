@@ -8,6 +8,8 @@ Forked from the CamelCamelCamel scraper that powers
 [sell.applesauce.chat](https://sell.applesauce.chat). Designed to be deployed
 independently of sell so other apps can talk to it.
 
+![Swagger UI showing all endpoints](docs/img/swagger.png)
+
 ## Status
 
 | Endpoint | Status | Notes |
@@ -59,6 +61,8 @@ AMAZON_CRAWLER_URL=http://localhost:8010 pytest tests/test_smoke.py -v
 ### `GET /scrape-camel`
 
 Query CamelCamelCamel for an Amazon product search.
+
+![/scrape-camel parameters and response shape](docs/img/scrape-camel-endpoint.png)
 
 | param | type | default | notes |
 |---|---|---|---|
